@@ -6,21 +6,23 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls,
-  DSPack, DirectShow9, DXSUtil, Vcl.AppEvnts;
+  DSPack, DirectShow9, DXSUtil, Vcl.AppEvnts, Vcl.Buttons;
 
 type
   TForm1 = class(TForm)
     Image1: TImage;
-    Button1: TButton;
     FilterGraph1: TFilterGraph;
     VideoWindow1: TVideoWindow;
     Filter1: TFilter;
     SampleGrabber1: TSampleGrabber;
     ApplicationEvents1: TApplicationEvents;
+    SpeedButton1: TSpeedButton;
+    ComboBox1: TComboBox;
     procedure FormCreate(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure ApplicationEvents1Idle(Sender: TObject; var Done: Boolean);
+    procedure SpeedButton1Click(Sender: TObject);
+    procedure ComboBox1Change(Sender: TObject);
   private
     { Private êÈåæ }
   public
@@ -36,32 +38,54 @@ implementation
 
 uses TfLite;
 
+const
+  size = 300;
+
 var
   core: TInterpreter;
   VideoDevices: TSysDevEnum;
   bmp: TBitmap;
 
-procedure TForm1.ApplicationEvents1Idle(Sender: TObject; var Done: Boolean);
+procedure makelist;
+var
+  rec: TSearchRec;
+  i: integer;
 begin
-  Button1Click(Sender);
-  Done:=false;
+  i := FindFirst('.\*.tflite', faNormal, rec);
+  while i = 0 do
+  begin
+    if ExtractFileExt(rec.Name) = '.tflite' then
+      Form1.ComboBox1.Items.Add(rec.Name);
+    i := FindNext(rec);
+  end;
+  FindClose(rec);
 end;
 
-procedure TForm1.Button1Click(Sender: TObject);
+procedure TForm1.ApplicationEvents1Idle(Sender: TObject; var Done: Boolean);
 begin
-  SampleGrabber1.GetBitmap(bmp);
-  Image1.Picture.Bitmap.Canvas.StretchDraw(Rect(0, 0, 300, 300), bmp);
-  core.Detect;
+  SpeedButton1Click(Sender);
+  Done := false;
+end;
+
+procedure TForm1.ComboBox1Change(Sender: TObject);
+begin
+  core.FileName:=ComboBox1.Text;
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
+  ComboBox1.Items.Clear;
+  makelist;
+  VideoWindow1.Width := size;
+  VideoWindow1.Height := size;
+  Image1.Width := size;
+  Image1.Height := size;
   core := TInterpreter.Create(Self);
   core.Image := Image1;
-  core.FileName := 'detect.tflite';
+  core.FileName := ComboBox1.Text;
   bmp := TBitmap.Create;
-  bmp.Width := 300;
-  bmp.Height := 300;
+  bmp.Width := size;
+  bmp.Height := size;
   Image1.Picture.Assign(bmp);
   VideoDevices := TSysDevEnum.Create(CLSID_VideoInputDeviceCategory);
   FilterGraph1.Active := false;
@@ -82,6 +106,14 @@ begin
   FilterGraph1.Stop;
   FilterGraph1.Active := false;
   FilterGraph1.ClearGraph;
+end;
+
+procedure TForm1.SpeedButton1Click(Sender: TObject);
+begin
+  SampleGrabber1.GetBitmap(bmp);
+  Image1.Picture.Bitmap.Canvas.StretchDraw(Rect(0, 0, size, size), bmp);
+  if SpeedButton1.Down then
+    core.Detect;
 end;
 
 end.

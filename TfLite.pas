@@ -19,7 +19,7 @@ type
     kTfLiteFloat16 = 10, kTfLiteFloat64 = 11);
 
   PInputArray = ^TInputArray;
-  TInputArray = array [0 .. 300 * 300 - 1] of array [0 .. 3 - 1] of UInt8;
+  TInputArray = array [0 .. PixelCount - 1] of array [0 .. 3 - 1] of UInt8;
 
   TInterpreter = class;
 
@@ -78,6 +78,7 @@ uses Vcl.Dialogs;
 
 const
   LibraryName = 'tflite.dll';
+  map = 'map.txt';
 
 function TfLiteModelCreateFromFile(const model_path: PAnsiChar): Pointer;
   stdcall; external LibraryName;
@@ -232,7 +233,7 @@ var
 begin
   labelMap := TStringList.Create;
   try
-    labelMap.LoadFromFile('labelmap.txt');
+    labelMap.LoadFromFile(map);
     for var i := 0 to Length(FLocations[0]) - 1 do
     begin
       FImage.Canvas.Brush.Style := bsClear;

@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'Form1'
-  ClientHeight = 442
-  ClientWidth = 803
+  ClientHeight = 697
+  ClientWidth = 1237
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -19,23 +19,35 @@ object Form1: TForm1
     Width = 300
     Height = 300
   end
-  object Button1: TButton
-    Left = 273
-    Top = 384
-    Width = 75
-    Height = 25
-    Caption = 'Button1'
-    TabOrder = 0
-    OnClick = Button1Click
+  object SpeedButton1: TSpeedButton
+    Left = 48
+    Top = 616
+    Width = 73
+    Height = 22
+    AllowAllUp = True
+    GroupIndex = 1
+    Down = True
+    Caption = 'detect'
+    Flat = True
+    OnClick = SpeedButton1Click
   end
   object VideoWindow1: TVideoWindow
-    Left = 433
+    Left = 649
     Top = 56
     Width = 300
     Height = 300
     FilterGraph = FilterGraph1
     VMROptions.Mode = vmrWindowed
     Color = clBlack
+  end
+  object ComboBox1: TComboBox
+    Left = 168
+    Top = 592
+    Width = 145
+    Height = 23
+    TabOrder = 1
+    Text = 'detect.tflite'
+    OnChange = ComboBox1Change
   end
   object FilterGraph1: TFilterGraph
     Mode = gmCapture
